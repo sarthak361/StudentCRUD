@@ -6,12 +6,13 @@ import com.model.Student;
 
 public class StudentDAO {
 
-    // CREATE
-    public void insertStudent(Student s) {
+    public void insert(Student s) {
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps =
-              con.prepareStatement(
-                "INSERT INTO students(name,email) VALUES (?,?)")) {
+                 con.prepareStatement(
+                		 
+                		 //for insert data into table
+                     "INSERT INTO students(name,email) VALUES (?,?)")) {
 
             ps.setString(1, s.getName());
             ps.setString(2, s.getEmail());
@@ -21,14 +22,33 @@ public class StudentDAO {
             e.printStackTrace();
         }
     }
+    public boolean isEmailExists(String email) {
 
-    // READ
-    public List<Student> getAllStudents() {
+        String sql = "SELECT COUNT(*) FROM students WHERE email=?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    public List<Student> getAll() {
         List<Student> list = new ArrayList<>();
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps =
-              con.prepareStatement("SELECT * FROM students");
+            		 //to show data on screen
+                 con.prepareStatement("SELECT * FROM students");
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
@@ -45,12 +65,51 @@ public class StudentDAO {
         return list;
     }
 
-    // UPDATE
-    public void updateStudent(Student s) {
+    public void delete(int id) {
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps =
-              con.prepareStatement(
-                "UPDATE students SET name=?, email=? WHERE id=?")) {
+                 con.prepareStatement(
+                		 //this is for deleting the data
+                     "DELETE FROM students WHERE id=?")) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public boolean isEmailExistsForOtherStudent(int id, String email) {
+
+        String sql = "SELECT COUNT(*) FROM students WHERE email = ? AND id != ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+            ps.setInt(2, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Database error while checking email");
+        }
+
+        return false;
+    }
+
+
+    public void update(Student s) {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps =
+                 con.prepareStatement(
+                		 
+                		 //update data 
+                     "UPDATE students SET name=?, email=? WHERE id=?")) {
 
             ps.setString(1, s.getName());
             ps.setString(2, s.getEmail());
@@ -62,28 +121,14 @@ public class StudentDAO {
         }
     }
 
-    // DELETE
-    public void deleteStudent(int id) {
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps =
-                 con.prepareStatement("DELETE FROM students WHERE id=?")) {
-
-            ps.setInt(1, id);
-            ps.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    // GET BY ID (for edit)
-    public Student getStudentById(int id) {
+    public Student getById(int id) {
         Student s = null;
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps =
-              con.prepareStatement("SELECT * FROM students WHERE id=?")) {
+                 con.prepareStatement(
+                		 
+                     "SELECT * FROM students WHERE id=?")) {
 
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();

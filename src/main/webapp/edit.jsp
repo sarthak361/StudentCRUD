@@ -6,7 +6,7 @@
 
 <h2>Update Student</h2>
 
-<form action="student" method="post">
+<form action="<%=request.getContextPath()%>/updateStudent" method="post">
     <input type="hidden" name="action" value="update">
     <input type="hidden" name="id" value="<%=s.getId()%>">
 
