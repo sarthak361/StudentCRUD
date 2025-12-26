@@ -8,6 +8,27 @@
     <title>Student Management</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<script>
+function enableEdit(id) {
+    document.getElementById("nameText_" + id).style.display = "none";
+    document.getElementById("emailText_" + id).style.display = "none";
+
+    document.getElementById("nameInput_" + id).style.display = "inline";
+    document.getElementById("emailInput_" + id).style.display = "inline";
+
+    document.getElementById("editBtn_" + id).style.display = "none";
+    document.getElementById("saveBtn_" + id).style.display = "inline";
+}
+
+function prepareSave(id) {
+    document.getElementById("hiddenName_" + id).value =
+        document.getElementById("nameInput_" + id).value;
+
+    document.getElementById("hiddenEmail_" + id).value =
+        document.getElementById("emailInput_" + id).value;
+}
+</script>
+
 <body>
 
 <!-- ================= POPUP STATUS ================= -->
@@ -95,13 +116,50 @@
         %>
             <tr>
                 <td><%= s.getId() %></td>
-                <td><%= s.getName() %></td>
-                <td><%= s.getEmail() %></td>
                 <td>
-                    <a class="btn-edit"
-                       href="<%=request.getContextPath()%>/editStudent?id=<%=s.getId()%>">
-                        Edit
-                    </a>
+    <span id="nameText_<%=s.getId()%>"><%= s.getName() %></span>
+    <input type="text"
+           id="nameInput_<%=s.getId()%>"
+           value="<%= s.getName() %>"
+           style="display:none;">
+</td>
+
+<td>
+    <span id="emailText_<%=s.getId()%>"><%= s.getEmail() %></span>
+    <input type="email"
+           id="emailInput_<%=s.getId()%>"
+           value="<%= s.getEmail() %>"
+           style="display:none;">
+</td>
+
+                <td>
+<td>
+    <button id="editBtn_<%=s.getId()%>"
+            onclick="enableEdit(<%=s.getId()%>)">
+        Edit
+    </button>
+
+    <form action="<%=request.getContextPath()%>/updateStudent"
+          method="post"
+          style="display:inline;">
+
+        <input type="hidden" name="id" value="<%=s.getId()%>">
+
+        <input type="hidden" name="name"
+               id="hiddenName_<%=s.getId()%>">
+
+        <input type="hidden" name="email"
+               id="hiddenEmail_<%=s.getId()%>">
+
+        <button type="submit"
+                id="saveBtn_<%=s.getId()%>"
+                style="display:none;"
+                onclick="prepareSave(<%=s.getId()%>)">
+            Save
+        </button>
+    </form>
+   
+
 
                     <a class="btn-delete"
                        href="<%=request.getContextPath()%>/deleteStudent?id=<%=s.getId()%>"
@@ -120,7 +178,7 @@
         <%
         
         
-            }
+         }
         %>
         </tbody>
     </table>

@@ -1,10 +1,21 @@
 package com.service;
 
+import org.slf4j.Logger;
+
+
 import java.util.List;
 import com.dao.StudentDAO;
+import com.exception.DuplicateEmailException;
+import com.exception.InvalidEmailException;
 import com.model.Student;
+import org.slf4j.LoggerFactory;
+
+
+
 
 public class StudentService {
+    private static final Logger log =
+            LoggerFactory.getLogger(StudentService.class);
 	
 	
 
@@ -16,9 +27,12 @@ public class StudentService {
 
     // CREATE
     public boolean addStudent(Student s) {
-
+    	//   traceLogger.info("Adding student with email {}", s.getEmail());
+    	
         if (dao.isEmailExists(s.getEmail())) {
-            return false; // duplicate
+        	 log.warn("Invalid email: {}", s.getEmail());
+        	   throw new DuplicateEmailException(
+                       "Email already exists. Please use another email.");
         }
 
         dao.insert(s);
@@ -32,26 +46,31 @@ public class StudentService {
     }
 
     // DELETE
-    public void deleteStudent(int id) {
+    public boolean deleteStudent(int id) {
         dao.delete(id);
+		return false;
     }
     
 
     // UPDATE
-    public boolean updateStudent(Student s) {
+    public void updateStudent(Student s) {
 
-        // ❌ duplicate email check
-        if (dao.isEmailExistsForOtherStudent(s.getId(), s.getEmail())) {
-            return false;
+        if (!isValidGmail(s.getEmail())) {
+        	log.warn("Invalid email: {}", s.getEmail());
+        
+            throw new InvalidEmailException("Invalid Gmail: " + s.getEmail());
         }
 
-        // ✅ safe update
+        if (dao.isEmailExistsForOtherStudent(s.getId(), s.getEmail())) {
+        	log.warn("duplicate email: {}", s.getEmail());
+            throw new DuplicateEmailException("Duplicate email: " + s.getEmail());
+        }
+
         dao.update(s);
-        return true;
     }
 
 
-    // READ BY ID (for edit)
+    // READ BY ID 
     public Student getStudentById(int id) {
         return dao.getById(id);
     }

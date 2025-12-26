@@ -4,53 +4,43 @@ import com.model.Student;
 import com.service.StudentService;
 
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
-import java.io.IOException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @WebServlet("/updateStudent")
 public class UpdateStudentServlet extends HttpServlet {
-	
+
+    private static final Logger log =
+        LoggerFactory.getLogger(UpdateStudentServlet.class);
 
     private StudentService service = new StudentService();
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
-    	
-    	String email = req.getParameter("email");
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
 
-    	if (!service.isValidGmail(email)) {
-    	    resp.sendRedirect(req.getContextPath()
-    	        + "/students?status=invalidEmail");
-    	    return;
-    	}
-
-    	String idStr = req.getParameter("id");
-    	if (idStr == null || idStr.isEmpty()) {
-    	    throw new RuntimeException("Student id missing for update");
-    	}
-
-    	int id = Integer.parseInt(idStr);
+        log.info("UpdateStudent request received");
 
         Student s = new Student();
         s.setId(Integer.parseInt(req.getParameter("id")));
         s.setName(req.getParameter("name"));
         s.setEmail(req.getParameter("email"));
-        boolean success = service.updateStudent(s);
 
-        if (!success) {
-            // ❌ duplicate email
-            resp.sendRedirect(req.getContextPath()
-                + "/students?status=duplicateUpdate");
-            return;
-        }
+        log.debug("Updating student id={}", s.getId());
 
-        // ✅ success
-        resp.sendRedirect(req.getContextPath()
-            + "/students?status=updated");
-
-
+        // exception yahin se aayegi
         service.updateStudent(s);
-        resp.sendRedirect(req.getContextPath() + "/students?status=updated");
+
+        log.info("Student updated successfully, id={}", s.getId());
+
+        try {
+            resp.sendRedirect(req.getContextPath() + "/students");
+        } catch (Exception e) {
+            log.error("Redirect failed after update", e);
+            throw new RuntimeException("Redirect failed", e);
+        }
     }
 }

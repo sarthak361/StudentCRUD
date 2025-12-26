@@ -2,6 +2,8 @@ package com.dao;
 
 import java.sql.*;
 import java.util.*;
+
+//import com.exception.DataAccessException;
 import com.model.Student;
 
 public class StudentDAO {
@@ -19,7 +21,7 @@ public class StudentDAO {
             ps.executeUpdate();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("failed to insert student data");
         }
     }
     public boolean isEmailExists(String email) {
@@ -36,7 +38,7 @@ public class StudentDAO {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+//        	   throw new DataAccessException("duplicate check failed",e);
         }
         return false;
     }
@@ -60,7 +62,7 @@ public class StudentDAO {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+        	  throw new RuntimeException("failed to show data");
         }
         return list;
     }
@@ -76,7 +78,7 @@ public class StudentDAO {
             ps.executeUpdate();
 
         } catch (Exception e) {
-            e.printStackTrace();
+        	  throw new RuntimeException("failed to delete existing data");
         }
     }
     public boolean isEmailExistsForOtherStudent(int id, String email) {
@@ -117,7 +119,7 @@ public class StudentDAO {
             ps.executeUpdate();
 
         } catch (Exception e) {
-            e.printStackTrace();
+        	  throw new RuntimeException("failed to update data");
         }
     }
 
@@ -141,7 +143,7 @@ public class StudentDAO {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+        	  throw new RuntimeException("id ");
         }
         return s;
     }

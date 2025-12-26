@@ -1,7 +1,10 @@
 package com.filter;
 
+import com.exception.*;
+
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 public class GlobalExceptionHandler implements Filter {
@@ -15,30 +18,37 @@ public class GlobalExceptionHandler implements Filter {
         try {
             chain.doFilter(request, response);
 
-        } catch (Exception e) {
+        } catch (InvalidEmailException e) {
 
-            // ✅ response already committed? then DO NOTHING
-            if (((HttpServletResponse) response).isCommitted()) {
-                return;
-            }
+            ((HttpServletResponse) response).sendError(
+                HttpServletResponse.SC_BAD_REQUEST,
+                e.getMessage()
+            );
+            throw e; //  console me stacktrace
 
-            String title = "Application Error";
-            String message = "Something went wrong.";
+        } catch (DuplicateEmailException e) {
 
-            if (e instanceof NumberFormatException) {
-                title = "Invalid Input";
-                message = "Please enter valid number.";
-            } else if (e instanceof NullPointerException) {
-                title = "Missing Data";
-                message = "Required data is missing.";
-            }
+            ((HttpServletResponse) response).sendError(
+                HttpServletResponse.SC_CONFLICT,
+                e.getMessage()
+            );
+            throw e;
 
-            request.setAttribute("errorTitle", title);
-            request.setAttribute("errorMessage", message);
+        } catch (StudentNotFoundException e) {
 
-            RequestDispatcher rd =
-                    request.getRequestDispatcher("/error.jsp");
-            rd.forward(request, response);
+            ((HttpServletResponse) response).sendError(
+                HttpServletResponse.SC_NOT_FOUND,
+                e.getMessage()
+            );
+            throw e;
+
+        } catch (RuntimeException e) {
+
+            ((HttpServletResponse) response).sendError(
+                HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                "Something went wrong"
+            );
+            throw e;
         }
     }
 }

@@ -19,5 +19,8 @@
 			<attribute name="javadoc_location" value="https://jakarta.ee/specifications/servlet/5.0/apidocs/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Az/Downloads/logback-classic-1.4.14.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Az/Downloads/logback-core-1.4.14.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Az/Downloads/slf4j-api-2.0.9.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
